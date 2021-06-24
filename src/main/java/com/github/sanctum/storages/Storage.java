@@ -19,6 +19,7 @@
 package com.github.sanctum.storages;
 
 import com.github.sanctum.storages.exceptions.ItemException;
+import com.google.common.collect.ImmutableList;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +47,9 @@ public interface Storage extends Iterable<ItemStack> {
      * @param item an ItemStack
      * @throws ItemException if unable to add the item
      */
-    void addItem(@NotNull ItemStack item) throws ItemException;
+    default void addItem(@NotNull ItemStack item) throws ItemException {
+        addItem(ImmutableList.of(item));
+    }
     /**
      * Add a collection of ItemStacks to the storage.
      *
@@ -61,7 +64,9 @@ public interface Storage extends Iterable<ItemStack> {
      * @param item an ItemStack
      * @throws ItemException if unable to remove the item
      */
-    void removeItem(@NotNull ItemStack item) throws ItemException;
+    default void removeItem(@NotNull ItemStack item) throws ItemException {
+        removeItem(ImmutableList.of(item));
+    }
     /**
      * Remove a collection of ItemStacks from the storage.
      *
@@ -78,7 +83,15 @@ public interface Storage extends Iterable<ItemStack> {
      * @return true if any items match the given material
      */
     boolean contains(Material material);
-
+    /**
+     * Whether this storage contains at least an amount
+     * of the provided material.
+     *
+     * @param material a material
+     * @param amount an amount
+     * @return true if at least amount of material is found
+     */
+    boolean containsAtLeast(Material material, int amount);
     /**
      * Whether this storage contains a stack similar to the item passed.
      * <p>
@@ -131,15 +144,6 @@ public interface Storage extends Iterable<ItemStack> {
      * @return true if enough exact matches are found
      */
     boolean containsExact(ItemStack itemStack, int amount);
-    /**
-     * Whether this storage contains at least an amount
-     * of the provided material.
-     *
-     * @param material a material
-     * @param amount an amount
-     * @return true if at least amount of material is found
-     */
-    boolean containsAtLeast(Material material, int amount);
 
     /**
      * Remove all matches of a Material.
