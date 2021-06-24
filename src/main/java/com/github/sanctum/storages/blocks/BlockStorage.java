@@ -2,12 +2,13 @@ package com.github.sanctum.storages.blocks;
 
 import com.github.sanctum.storages.Storage;
 import com.github.sanctum.storages.exceptions.ItemException;
+import com.google.common.collect.ImmutableList;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.ListIterator;
 
 public class BlockStorage implements Storage {
     private final BlockManager blockManager;
@@ -28,32 +29,38 @@ public class BlockStorage implements Storage {
 
     @Override
     public void addItem(Collection<@NotNull ItemStack> items) throws ItemException {
-
+        final Collection<ItemStack> values = blockManager.queryContainer(c -> c.getInventory().addItem(items.toArray(new ItemStack[0]))).values();
+        if (!values.isEmpty()) {
+            throw new ItemException(ImmutableList.copyOf(values));
+        }
     }
 
     @Override
     public void removeItem(Collection<@NotNull ItemStack> items) throws ItemException {
-
+        final Collection<ItemStack> values = blockManager.queryContainer(c -> c.getInventory().removeItem(items.toArray(new ItemStack[0]))).values();
+        if (!values.isEmpty()) {
+            throw new ItemException(ImmutableList.copyOf(values));
+        }
     }
 
     @Override
     public boolean contains(Material material) {
-        return false;
+        return blockManager.queryContainer(c -> c.getInventory().contains(material));
     }
 
     @Override
     public boolean containsAtLeast(Material material, int amount) {
-        return false;
+        return blockManager.queryContainer(c -> c.getInventory().contains(material, amount));
     }
 
     @Override
     public boolean containsSimilar(ItemStack similar, int amount) {
-        return false;
+        return blockManager.queryContainer(c -> c.getInventory().containsAtLeast(similar, amount));
     }
 
     @Override
     public boolean containsExact(ItemStack itemStack, int amount) {
-        return false;
+        return blockManager.queryContainer(c -> c.getInventory().contains(itemStack, amount));
     }
 
     @Override
@@ -68,12 +75,11 @@ public class BlockStorage implements Storage {
 
     @Override
     public void clear() {
-
     }
 
     @NotNull
     @Override
-    public Iterator<ItemStack> iterator() {
-        return null;
+    public ListIterator<ItemStack> iterator() {
+        return blockManager.queryContainer(c -> c.getInventory().iterator());
     }
 }
