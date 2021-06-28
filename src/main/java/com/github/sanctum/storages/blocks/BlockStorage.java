@@ -1,20 +1,41 @@
 package com.github.sanctum.storages.blocks;
 
-import com.github.sanctum.storages.Storage;
+import com.github.sanctum.storages.DiscreteStorage;
 import com.github.sanctum.storages.exceptions.ItemException;
+import com.github.sanctum.storages.storage.StorageSlot;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.ListIterator;
+import java.util.Optional;
 
-public class BlockStorage implements Storage {
+public class BlockStorage extends DiscreteStorage {
     private final BlockManager blockManager;
+    private final ImmutableList<StorageSlot> slotDAOs;
 
     private BlockStorage(BlockManager blockManager) {
         this.blockManager = blockManager;
+        final ImmutableList.Builder<StorageSlot> slots = new ImmutableList.Builder<>();
+        final int size = getSize();
+        for (int index = 0; index < size; ++index) {
+            slots.add(new StorageSlot(index) {
+                @Override
+                public Optional<@NotNull ItemStack> getItem() {
+                    return Optional.ofNullable(blockManager.queryContainer(c -> c.getInventory().getItem(index)));
+                }
+
+                @Override
+                public void setItem(@Nullable ItemStack item) {
+                    blockManager.updateContainer(c -> c.getInventory().setItem(index, item));
+                }
+            });
+        }
+        this.slotDAOs = slots.build();
     }
 
     @Override
@@ -23,8 +44,23 @@ public class BlockStorage implements Storage {
     }
 
     @Override
+    public List<StorageSlot> getSlots() {
+        return slotDAOs;
+    }
+
+    @Override
+    public ItemStack[] getContents() {
+        return blockManager.queryContainer(c -> c.getInventory().getContents());
+    }
+
+    @Override
+    public void setContents(ItemStack[] items) throws IllegalArgumentException {
+        blockManager.updateContainer(c -> c.getInventory().setContents(items));
+    }
+
+    @Override
     public @NotNull String getName() {
-        return null;
+        return blockManager.queryContainer(c -> c.getType().toString() + '[' + c.getLocation().toString() + ']');
     }
 
     @Override
@@ -65,16 +101,36 @@ public class BlockStorage implements Storage {
 
     @Override
     public boolean remove(Material material) {
-        return false;
+        boolean removedAny = false;
+        final ListIterator<ItemStack> iterator = iterator();
+        while (iterator.hasNext()) {
+            final ItemStack next = iterator.next();
+            if (next != null && next.getType() == material) {
+                if (!removedAny) removedAny = true;
+                iterator.set(null);
+            }
+        }
+        return removedAny;
     }
 
     @Override
     public boolean removeExact(ItemStack item) {
-        return false;
+        if (item == null) return false;
+        boolean removedAny = false;
+        final ListIterator<ItemStack> iterator = iterator();
+        while (iterator.hasNext()) {
+            final ItemStack next = iterator.next();
+            if (item.equals(next)) {
+                if (!removedAny) removedAny = true;
+                iterator.set(null);
+            }
+        }
+        return removedAny;
     }
 
     @Override
     public void clear() {
+        blockManager.updateContainer(c -> c.getInventory().clear());
     }
 
     @NotNull
