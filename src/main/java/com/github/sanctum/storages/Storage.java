@@ -19,14 +19,30 @@
 package com.github.sanctum.storages;
 
 import com.github.sanctum.storages.exceptions.ItemException;
+import com.github.sanctum.storages.storage.StorageItem;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.ListIterator;
 
-public interface Storage extends Iterable<ItemStack> {
+/**
+ * Represents a dynamic item storage which may be iterated upon.
+ * <p>
+ * Does not directly expose its slots by their position but
+ * allows for the addition, removal, testing of items, as well as
+ * the clearing of all items.
+ * <p>
+ * Type-bound allows for {@link StorageItem} and any of its
+ * subclasses to be selected by concrete implementations.
+ *
+ * @since 1.0.0
+ * @see DiscreteStorage
+ * @author ms5984
+ */
+public interface Storage<T extends StorageItem> extends Iterable<T> {
     /**
      * Get the capacity of the storage.
      *
@@ -166,4 +182,13 @@ public interface Storage extends Iterable<ItemStack> {
      * Clear the entire storage.
      */
     void clear();
+
+    /**
+     * Return a ListIterator which is able to traverse the storage
+     * and process item modifications.
+     *
+     * @return a ListIterator
+     */
+    @Override
+    @NotNull ListIterator<T> iterator();
 }

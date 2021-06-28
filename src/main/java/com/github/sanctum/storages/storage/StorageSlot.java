@@ -1,39 +1,31 @@
+/*
+ *  This file is part of storages.
+ *
+ *  Copyright 2021 ms5984 (Matt) <https://github.com/ms5984>
+ *  Copyright 2021 the-h-team (Sanctum) <https://github.com/the-h-team>
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package com.github.sanctum.storages.storage;
 
-import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Optional;
-import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
-
-public abstract class StorageSlot {
+public abstract class StorageSlot extends StorageItem {
     public final int index;
 
     protected StorageSlot(int index) {
         this.index = index;
     }
 
-    public abstract Optional<@NotNull ItemStack> getItem();
-    public abstract void setItem(@Nullable ItemStack item);
-
-    public void set(Supplier<@Nullable ItemStack> supplier) {
-        setItem(supplier.get());
-    }
-
-    public void update(UnaryOperator<@Nullable ItemStack> updateOperation) {
-        setItem(updateOperation.apply(getItem().orElse(null)));
-    }
-
-    public Optional<@NotNull ItemStack> getAndUpdate(UnaryOperator<@Nullable ItemStack> updateOperation) {
-        final Optional<@NotNull ItemStack> original = getItem();
-        update(updateOperation);
-        return original;
-    }
-
-    public Optional<@NotNull ItemStack> updateAndGet(UnaryOperator<@Nullable ItemStack> updateOperation) {
-        update(updateOperation);
-        return getItem();
+    public final int getIndex() {
+        return index;
     }
 }

@@ -1,3 +1,21 @@
+/*
+ *  This file is part of storages.
+ *
+ *  Copyright 2021 ms5984 (Matt) <https://github.com/ms5984>
+ *  Copyright 2021 the-h-team (Sanctum) <https://github.com/the-h-team>
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package com.github.sanctum.storages.blocks;
 
 import com.github.sanctum.storages.DiscreteStorage;
@@ -102,7 +120,7 @@ public class BlockStorage extends DiscreteStorage {
     @Override
     public boolean remove(Material material) {
         boolean removedAny = false;
-        final ListIterator<ItemStack> iterator = iterator();
+        final ListIterator<ItemStack> iterator = blockManager.queryContainer(c -> c.getInventory().iterator());
         while (iterator.hasNext()) {
             final ItemStack next = iterator.next();
             if (next != null && next.getType() == material) {
@@ -117,7 +135,7 @@ public class BlockStorage extends DiscreteStorage {
     public boolean removeExact(ItemStack item) {
         if (item == null) return false;
         boolean removedAny = false;
-        final ListIterator<ItemStack> iterator = iterator();
+        final ListIterator<ItemStack> iterator = blockManager.queryContainer(c -> c.getInventory().iterator());
         while (iterator.hasNext()) {
             final ItemStack next = iterator.next();
             if (item.equals(next)) {
@@ -131,11 +149,5 @@ public class BlockStorage extends DiscreteStorage {
     @Override
     public void clear() {
         blockManager.updateContainer(c -> c.getInventory().clear());
-    }
-
-    @NotNull
-    @Override
-    public ListIterator<ItemStack> iterator() {
-        return blockManager.queryContainer(c -> c.getInventory().iterator());
     }
 }
