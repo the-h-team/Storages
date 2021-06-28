@@ -16,11 +16,11 @@ public class BlockManager {
         this.blockLocation = blockLocation;
     }
 
-    public <R> R queryContainer(Function<Container, R> queryFunction) {
+    public <R> R queryContainer(Function<Container, R> queryFunction) throws IllegalStateException {
         return queryFunction.apply(getContainer());
     }
 
-    public void updateContainer(Consumer<Container> queryFunction) {
+    public void updateContainer(Consumer<Container> queryFunction) throws IllegalStateException {
         queryFunction.andThen(Container::update).accept(getContainer());
     }
 
@@ -34,11 +34,12 @@ public class BlockManager {
         return c;
     }
 
-    public static BlockManager ofBlock(Block block) throws IllegalArgumentException {
+    public static BlockManager ofBlock(Block block) throws IllegalArgumentException, IllegalStateException {
         final BlockLocation blockLocation = BlockLocation.of(block);
         BlockManager blockManager = INSTANCES.get(blockLocation);
         if (blockManager != null) return blockManager;
         INSTANCES.put(blockLocation, (blockManager = new BlockManager(blockLocation)));
+        blockManager.getContainer(); // Validates container
         return blockManager;
     }
 }

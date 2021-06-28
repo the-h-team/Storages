@@ -76,8 +76,10 @@ public final class BlockLocation {
         return new BlockLocation(block.getX(), block.getY(), block.getZ(), block.getWorld());
     }
 
-    public static BlockLocation ofLocation(@NotNull Location location) {
-        return new BlockLocation(location.getBlockX(), location.getBlockY(), location.getBlockZ(), location.getWorld());
+    public static BlockLocation ofLocation(@NotNull Location location) throws IllegalArgumentException {
+        final World world = location.getWorld();
+        if (world == null) throw new IllegalArgumentException("Location's world cannot be null");
+        return new BlockLocation(location.getBlockX(), location.getBlockY(), location.getBlockZ(), world);
     }
 
     @Override
