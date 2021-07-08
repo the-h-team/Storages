@@ -18,15 +18,16 @@
  */
 package com.github.sanctum.storages.blocks;
 
+import com.github.sanctum.storages.InventoryDiscreteStorage.InventoryManager;
+import com.github.sanctum.storages.exceptions.InventoryHolderException;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
-public class BlockManager {
+public class BlockManager extends InventoryManager<Container> {
     private static final Map<BlockLocation, BlockManager> INSTANCES = new ConcurrentHashMap<>();
     private final BlockLocation blockLocation;
 
@@ -34,30 +35,28 @@ public class BlockManager {
         this.blockLocation = blockLocation;
     }
 
-    public <R> R queryContainer(Function<Container, R> queryFunction) throws IllegalStateException {
-        return queryFunction.apply(getContainer());
+    @Override
+    public void update(Consumer<Container> queryFunction) throws InventoryHolderException {
+        super.update(queryFunction.andThen(Container::update));
     }
 
-    public void updateContainer(Consumer<Container> queryFunction) throws IllegalStateException {
-        queryFunction.andThen(Container::update).accept(getContainer());
-    }
-
-    private Container getContainer() throws IllegalStateException {
+    @Override
+    protected Container validate() throws InventoryHolderException {
         final Container c;
         try {
             c = (Container) blockLocation.toBlock().getState();
         } catch (ClassCastException e) {
-            throw new IllegalStateException(e);
+            throw new InventoryHolderException("Unable to cast BlockState to Container. The block probably changed.", e);
         }
         return c;
     }
 
-    public static BlockManager ofBlock(Block block) throws IllegalArgumentException, IllegalStateException {
+    public static BlockManager ofBlock(Block block) throws InventoryHolderException {
         final BlockLocation blockLocation = BlockLocation.of(block);
         BlockManager blockManager = INSTANCES.get(blockLocation);
         if (blockManager != null) return blockManager;
         INSTANCES.put(blockLocation, (blockManager = new BlockManager(blockLocation)));
-        blockManager.getContainer(); // Validates container
+        blockManager.validate(); // Validates container
         return blockManager;
     }
 }

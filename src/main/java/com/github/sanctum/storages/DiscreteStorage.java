@@ -18,6 +18,7 @@
  */
 package com.github.sanctum.storages;
 
+import com.github.sanctum.storages.exceptions.ProviderException;
 import com.github.sanctum.storages.storage.StorageSlot;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.Material;
@@ -38,26 +39,25 @@ import java.util.ListIterator;
  */
 public abstract class DiscreteStorage implements Storage<StorageSlot> {
 
-    @Override
-    public int getSize() {
-        return getSlots().size();
-    }
-
     public abstract List<StorageSlot> getSlots();
 
-    public List<StorageSlot> findExact(ItemStack stack) {
+    public List<StorageSlot> findExact(ItemStack stack) throws ProviderException {
         final ImmutableList.Builder<StorageSlot> builder = new ImmutableList.Builder<>();
-        getSlots().stream()
-                .filter(storageSlot -> storageSlot.getItem().filter(stack::equals).isPresent())
-                .forEach(builder::add);
+        for (StorageSlot storageSlot : getSlots()) {
+            if (storageSlot.getItem().filter(stack::equals).isPresent()) {
+                builder.add(storageSlot);
+            }
+        }
         return builder.build();
     }
 
-    public List<StorageSlot> find(Material material) {
+    public List<StorageSlot> find(Material material) throws ProviderException {
         final ImmutableList.Builder<StorageSlot> builder = new ImmutableList.Builder<>();
-        getSlots().stream()
-                .filter(storageSlot -> storageSlot.getItem().filter(i -> i.getType() == material).isPresent())
-                .forEach(builder::add);
+        for (StorageSlot storageSlot : getSlots()) {
+            if (storageSlot.getItem().filter(i -> i.getType() == material).isPresent()) {
+                builder.add(storageSlot);
+            }
+        }
         return builder.build();
     }
 
@@ -67,16 +67,16 @@ public abstract class DiscreteStorage implements Storage<StorageSlot> {
         return getSlots().get((Integer.signum(index) != -1) ? index : size + index);
     }
 
-    public void clearSlot(int index) throws IllegalArgumentException {
+    public void clearSlot(int index) throws ProviderException, IllegalArgumentException {
         getSlot(index).setItem(null);
     }
 
-    public void setItem(int index, ItemStack item) throws IllegalArgumentException {
+    public void setItem(int index, ItemStack item) throws ProviderException, IllegalArgumentException {
         getSlot(index).setItem(item);
     }
 
-    public abstract ItemStack[] getContents();
-    public abstract void setContents(ItemStack[] items) throws IllegalArgumentException;
+    public abstract ItemStack[] getContents() throws ProviderException;
+    public abstract void setContents(ItemStack[] items) throws ProviderException, IllegalArgumentException;
 
     @Override
     public @NotNull ListIterator<StorageSlot> iterator() {
