@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableList;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.ListIterator;
@@ -39,8 +40,25 @@ import java.util.ListIterator;
  */
 public abstract class DiscreteStorage implements Storage<StorageSlot> {
 
+    /**
+     * Get a list of all slots in this storage.
+     * <p>
+     * {@link StorageSlot StorageSlots} are designed as data-access objects.
+     *
+     * @return immutable list of all slots in this storage
+     */
     public abstract List<StorageSlot> getSlots();
 
+    /**
+     * Get a list of slots whose contents match the
+     * provided {@link ItemStack} exactly.
+     * <p>
+     * Matches meta and amount.
+     *
+     * @param stack an ItemStack to match exactly
+     * @return sublist of slots whose contents match stack
+     * @throws ProviderException if the provider encounters an error
+     */
     public List<StorageSlot> findExact(ItemStack stack) throws ProviderException {
         final ImmutableList.Builder<StorageSlot> builder = new ImmutableList.Builder<>();
         for (StorageSlot storageSlot : getSlots()) {
@@ -51,6 +69,14 @@ public abstract class DiscreteStorage implements Storage<StorageSlot> {
         return builder.build();
     }
 
+    /**
+     * Get a list of slots whose contents match
+     * the provided {@link Material}.
+     *
+     * @param material a material to match
+     * @return sublist of slots whose contents match type
+     * @throws ProviderException if the provider encounters an error
+     */
     public List<StorageSlot> find(Material material) throws ProviderException {
         final ImmutableList.Builder<StorageSlot> builder = new ImmutableList.Builder<>();
         for (StorageSlot storageSlot : getSlots()) {
@@ -61,17 +87,54 @@ public abstract class DiscreteStorage implements Storage<StorageSlot> {
         return builder.build();
     }
 
+    /**
+     * Get the {@link StorageSlot} at the provided index.
+     * <p>
+     * Negative values start at the end of the storage and
+     * count backward; -1 returns the last slot, -2 the
+     * second-to-last and so on.
+     *
+     * @param index the index of the slot
+     * @return StorageSlot data-access object at the provided index
+     * @throws IllegalArgumentException if index >= getSlots().size()
+     * or index < -(getSlots().size())
+     */
     public StorageSlot getSlot(int index) throws IllegalArgumentException {
         final int size = getSlots().size();
         if (index > size || index < -size) throw new IllegalArgumentException("Slot index out of bounds!");
         return getSlots().get((Integer.signum(index) != -1) ? index : size + index);
     }
 
+    /**
+     * Clear the item at the provided slot index.
+     * <p>
+     * Negative values start at the end of the storage and
+     * count backward; -1 returns the last slot, -2 the
+     * second-to-last and so on.
+     *
+     * @param index the index of the slot
+     * @throws ProviderException if the provider encounters an error
+     * @throws IllegalArgumentException if index >= getSlots().size()
+     * or index < -(getSlots().size())
+     */
     public void clearSlot(int index) throws ProviderException, IllegalArgumentException {
         getSlot(index).setItem(null);
     }
 
-    public void setItem(int index, ItemStack item) throws ProviderException, IllegalArgumentException {
+    /**
+     * Set the item at the provided slot index.
+     * <p>
+     * Negative values start at the end of the storage and
+     * count backward; -1 returns the last slot, -2 the
+     * second-to-last and so on.
+     *
+     * @param index the index of the slot
+     * @param item the new contents
+     * @throws ProviderException if the provider encounters an error
+     * @throws IllegalArgumentException if index >= getSlots().size()
+     * or index < -(getSlots().size())
+     */
+    public void setItem(int index, @Nullable ItemStack item) throws ProviderException, IllegalArgumentException {
         getSlot(index).setItem(item);
     }
 
