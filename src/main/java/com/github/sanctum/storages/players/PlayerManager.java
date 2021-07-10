@@ -41,9 +41,15 @@ public class PlayerManager extends InventoryManager<Player> {
     }
 
     @Override
-    protected Player validate() throws InventoryHolderException {
-        if (player.isValid()) return player;
+    protected @NotNull Player validate(Player rawState) throws InventoryHolderException {
+        final Player p = super.validate(rawState);
+        if (p.isValid()) return p;
         throw new InventoryHolderException("Player is not valid.");
+    }
+
+    @Override
+    protected Player getRawState() {
+        return player;
     }
 
     public static PlayerManager of(@NotNull Player player) {

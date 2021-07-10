@@ -138,7 +138,28 @@ public abstract class DiscreteStorage implements Storage<StorageSlot> {
         getSlot(index).setItem(item);
     }
 
+    /**
+     * Get the contents of the storage as an array of ItemStacks.
+     * <p>
+     * Individual elements may be null.
+     *
+     * @return an array of {@link ItemStack ItemStacks}
+     * @throws ProviderException if the provider encounters an error
+     */
     public abstract ItemStack[] getContents() throws ProviderException;
+
+    /**
+     * Set the contents of the storage as an array of ItemStacks.
+     * <p>
+     * Individual elements may be null.
+     * <p>
+     * Array must be less than or equal to size of storage.
+     *
+     * @param items an array of {@link ItemStack ItemStacks}
+     * @throws ProviderException if the provider encounters an error
+     * @throws IllegalArgumentException if index >= getSlots().size()
+     * or index < -(getSlots().size())
+     */
     public abstract void setContents(ItemStack[] items) throws ProviderException, IllegalArgumentException;
 
     @Override

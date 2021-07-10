@@ -41,7 +41,7 @@ public class BlockManager extends InventoryManager<Container> {
     }
 
     @Override
-    protected Container validate() throws InventoryHolderException {
+    protected Container getRawState() throws InventoryHolderException {
         final Container c;
         try {
             c = (Container) blockLocation.toBlock().getState();
@@ -56,7 +56,7 @@ public class BlockManager extends InventoryManager<Container> {
         BlockManager blockManager = INSTANCES.get(blockLocation);
         if (blockManager != null) return blockManager;
         INSTANCES.put(blockLocation, (blockManager = new BlockManager(blockLocation)));
-        blockManager.validate(); // Validates container
+        blockManager.getRawState(); // Validates container
         return blockManager;
     }
 }

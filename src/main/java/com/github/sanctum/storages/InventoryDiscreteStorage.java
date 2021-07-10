@@ -18,9 +18,11 @@
  */
 package com.github.sanctum.storages;
 
+import com.github.sanctum.storages.blocks.BlockManager;
 import com.github.sanctum.storages.exceptions.InventoryHolderException;
 import com.github.sanctum.storages.exceptions.ItemException;
 import com.github.sanctum.storages.exceptions.ProviderException;
+import com.github.sanctum.storages.players.PlayerManager;
 import com.github.sanctum.storages.storage.StorageSlot;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.Material;
@@ -157,16 +159,59 @@ public abstract class InventoryDiscreteStorage extends DiscreteStorage {
         return anyRemoved;
     }
 
+    /**
+     * Abstract manager class for {@link InventoryHolder}-based
+     * InventoryDiscreteStorages.
+     *
+     * @see BlockManager
+     * @see PlayerManager
+     * @param <T> InventoryHolder and Nameable type
+     */
     public static abstract class InventoryManager<T extends InventoryHolder & Nameable> {
 
+        /**
+         * Perform an operation on {@link T} which returns
+         * a value of arbitrary type.
+         *
+         * @param queryFunction query operation
+         * @param <R> return type of the function (inferred with lambdas)
+         * @return result of function
+         * @throws InventoryHolderException if the InventoryHolder encounters an error
+         */
         public <R> R query(Function<T, R> queryFunction) throws InventoryHolderException {
-            return queryFunction.apply(validate());
+            return queryFunction.apply(validate(getRawState()));
         }
 
+        /**
+         * Perform an operation on {@link T} which does not return a value.
+         *
+         * @param queryFunction update operation
+         * @throws InventoryHolderException if the InventoryHolder encounters an error
+         */
         public void update(Consumer<T> queryFunction) throws InventoryHolderException {
-            queryFunction.accept(validate());
+            queryFunction.accept(validate(getRawState()));
         }
 
-        protected abstract T validate() throws InventoryHolderException;
+        /**
+         * Validate the raw {@link T} state.
+         *
+         * @param rawState raw captured state
+         * @return validated state
+         * @throws InventoryHolderException if the InventoryHolder encounters an error
+         */
+        protected @NotNull T validate(T rawState) throws InventoryHolderException {
+            if (rawState == null) {
+                throw new InventoryHolderException("State cannot be null!");
+            }
+            return rawState;
+        }
+
+        /**
+         * Get the raw {@link T} state.
+         *
+         * @return raw {@link T} state
+         * @throws InventoryHolderException if the InventoryHolder encounters an error
+         */
+        protected abstract T getRawState() throws InventoryHolderException;
     }
 }
