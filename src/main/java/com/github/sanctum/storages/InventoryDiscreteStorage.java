@@ -1,5 +1,5 @@
 /*
- *  This file is part of storages.
+ *  This file is part of Storages.
  *
  *  Copyright 2021 ms5984 (Matt) <https://github.com/ms5984>
  *  Copyright 2021 the-h-team (Sanctum) <https://github.com/the-h-team>

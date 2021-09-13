@@ -31,9 +31,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/the-h-team/storages.git</connection>
-        <developerConnection>scm:git:ssh://github.com:the-h-team/storages.git</developerConnection>
-        <url>http://github.com/the-h-team/storages/tree/master</url>
+        <connection>scm:git:git://github.com/the-h-team/Storages.git</connection>
+        <developerConnection>scm:git:ssh://github.com:the-h-team/Storages.git</developerConnection>
+        <url>http://github.com/the-h-team/Storages/tree/master</url>
     </scm>
 
     <distributionManagement>
