@@ -24,8 +24,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
 
 /**
  * Represents a mutable ItemStack during storage iteration.
@@ -69,7 +69,7 @@ public abstract class StorageItem {
      * @param updateOperation update function to apply
      * @throws ProviderException if the provider encounters an error
      */
-    public void update(UnaryOperator<@Nullable ItemStack> updateOperation) throws ProviderException {
+    public void update(Function<@Nullable ItemStack, @Nullable ItemStack> updateOperation) throws ProviderException {
         setItem(updateOperation.apply(getItem().orElse(null)));
     }
 
@@ -80,7 +80,7 @@ public abstract class StorageItem {
      * @return an Optional describing the original storage item contents
      * @throws ProviderException if the provider encounters an error
      */
-    public Optional<@NotNull ItemStack> getAndUpdate(UnaryOperator<@Nullable ItemStack> updateOperation) throws ProviderException {
+    public Optional<@NotNull ItemStack> getAndUpdate(Function<@Nullable ItemStack, @Nullable ItemStack> updateOperation) throws ProviderException {
         final Optional<@NotNull ItemStack> original = getItem();
         update(updateOperation);
         return original;
@@ -93,7 +93,7 @@ public abstract class StorageItem {
      * @return an Optional describing the new storage item contents
      * @throws ProviderException if the provider encounters an error
      */
-    public Optional<@NotNull ItemStack> updateAndGet(UnaryOperator<@Nullable ItemStack> updateOperation) throws ProviderException {
+    public Optional<@NotNull ItemStack> updateAndGet(Function<@Nullable ItemStack, @Nullable ItemStack> updateOperation) throws ProviderException {
         update(updateOperation);
         return getItem();
     }
