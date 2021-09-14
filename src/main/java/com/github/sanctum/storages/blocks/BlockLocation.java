@@ -23,10 +23,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -35,7 +36,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @since 1.0.0
  * @author ms5984
  */
-public final class BlockLocation {
+public final class BlockLocation implements ConfigurationSerializable {
     /** The block X coordinate. */
     public final int x;
     /** The block Y coordinate. */
@@ -44,37 +45,77 @@ public final class BlockLocation {
     public final int z;
     /** The block world name. */
     public final String world;
-    public final AtomicReference<World> resolvedWorld = new AtomicReference<>();
+    private final AtomicReference<World> resolvedWorld = new AtomicReference<>();
 
     /**
-     * Create a BlockLocation from xyz-coordinates and a {@link World}.
+     * Create a BlockLocation from XYZ-coordinates and a {@link World}.
      * @param x the block's x coordinate
      * @param y the block's y coordinate
      * @param z the block's z coordinate
      * @param world the block's World
      */
-    public BlockLocation(int x, int y, int z, World world) {
+    public BlockLocation(int x, int y, int z, @NotNull World world) {
+        this(x, y, z, world.getName());
+        this.resolvedWorld.set(world);
+    }
+
+    /**
+     * Create a BlockLocation from XYZ-coordinates and a world name.
+     * @param x the block's x coordinate
+     * @param y the block's y coordinate
+     * @param z the block's z coordinate
+     * @param worldName the block's world name
+     */
+    public BlockLocation(int x, int y, int z, @NotNull String worldName) {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.world = world.getName();
-        this.resolvedWorld.set(world);
+        this.world = worldName;
     }
-    protected BlockLocation(@NotNull Map<String, Object> map) {
-        try {
-            this.x = (int) map.get("x");
-            this.y = (int) map.get("y");
-            this.z = (int) map.get("z");
-            final String world = (String) map.get("world");
-            final World resolved = Bukkit.getServer().getWorld(world);
-            if (resolved == null) {
-                throw new IllegalArgumentException("Unable to resolve world");
-            }
-            this.world = world;
-            this.resolvedWorld.set(resolved);
-        } catch (ClassCastException e) {
-            throw new IllegalArgumentException("Invalid map!", e);
-        }
+
+    /**
+     * Get the X coordinate of the block.
+     *
+     * @return the block's x coordinate
+     */
+    public int getX() {
+        return x;
+    }
+
+    /**
+     * Get the Y coordinate of the block.
+     *
+     * @return the block's y coordinate
+     */
+    public int getY() {
+        return y;
+    }
+
+    /**
+     * Get the Z coordinate of the block.
+     *
+     * @return the block's z coordinate
+     */
+    public int getZ() {
+        return z;
+    }
+
+    /**
+     * Get the stored name of the world of the block.
+     *
+     * @return the world name
+     */
+    public @NotNull String getWorldName() {
+        return world;
+    }
+
+    /**
+     * Get the runtime {@link World} of the block.
+     *
+     * @return the runtime world of the block
+     */
+    public @Nullable World getWorld() {
+        return resolvedWorld.updateAndGet(w -> w == null ? Bukkit.getServer().getWorld(world) : w);
     }
 
     /**
@@ -94,20 +135,30 @@ public final class BlockLocation {
      * <p>
      * <b>This can cause chunk loading!
      *
-     * @return Block object
+     * @return Block object or null if unable to resolve runtime world
      */
-    public Block toBlock() {
-        return getWorld().getBlockAt(x, y, z);
+    public @Nullable Block toBlock() {
+        final World world = getWorld();
+        if (world == null) return null;
+        return world.getBlockAt(x, y, z);
     }
 
-    private World getWorld() {
-        return resolvedWorld.updateAndGet(w -> w == null ? Bukkit.getServer().getWorld(world) : w);
-    }
-
+    /**
+     * Get a BlockLocation representing the provided Block.
+     *
+     * @param block a Block
+     * @return a new BlockLocation initialized to {@code block}'s data
+     */
     public static BlockLocation of(@NotNull Block block) {
         return new BlockLocation(block.getX(), block.getY(), block.getZ(), block.getWorld());
     }
 
+    /**
+     * Get a BlockLocation representing the block at the provided Location.
+     * @param location a Location, which must have a world component
+     * @return a new BlockLocation
+     * @throws IllegalArgumentException if {@code location} has no world
+     */
     public static BlockLocation ofLocation(@NotNull Location location) throws IllegalArgumentException {
         final World world = location.getWorld();
         if (world == null) throw new IllegalArgumentException("Location's world cannot be null");
@@ -127,23 +178,34 @@ public final class BlockLocation {
 
     @Override
     public int hashCode() {
-        return Objects.hash(x, y, z, world);
+        // crash-course: 1) expand range of values to cover maximum int space 2) XOR
+        return (x * 71) ^ (y * 1048573) ^ (z * 71) ^ world.hashCode();
     }
 
+    // for ConfigurationSerializable contract
+
+    @Override
     public @NotNull Map<String, Object> serialize() {
-        ImmutableMap.Builder<String, Object> map = new ImmutableMap.Builder<>();
-        map.put("x", x);
-        map.put("y", y);
-        map.put("z", z);
-        map.put("world", world);
-        return map.build();
+        return ImmutableMap.of(
+                "x", x,
+                "y", y,
+                "z", z,
+                "world", world);
     }
 
-    public static BlockLocation deserialize(@NotNull Map<String, Object> map) {
-        return new BlockLocation(map);
-    }
-
-    public static BlockLocation valueOf(@NotNull Map<String, Object> map) {
-        return new BlockLocation(map);
+    public static @Nullable BlockLocation deserialize(@NotNull Map<String, Object> map) {
+        int x, y, z;
+        final String worldName;
+        try {
+            x = (int) map.get("x");
+            y = (int) map.get("y");
+            z = (int) map.get("z");
+            worldName = (String) map.get("world");
+        } catch (ClassCastException e) {
+            return null;
+        }
+        if (worldName == null) return null;
+        final World resolved = Bukkit.getServer().getWorld(worldName);
+        return resolved == null ? new BlockLocation(x, y, z, worldName) : new BlockLocation(x, y, z, resolved);
     }
 }

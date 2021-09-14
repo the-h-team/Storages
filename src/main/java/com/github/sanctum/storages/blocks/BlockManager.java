@@ -55,8 +55,10 @@ public class BlockManager extends InventoryManager<Container> {
     @Override
     protected Container getRawState() throws InventoryHolderException {
         final Container c;
+        final Block block = blockLocation.toBlock();
+        if (block == null) throw new InventoryHolderException("Unable to resolve block in world!");
         try {
-            c = (Container) blockLocation.toBlock().getState();
+            c = (Container) block.getState();
         } catch (ClassCastException e) {
             throw new InventoryHolderException("Unable to cast BlockState to Container. The block probably changed.", e);
         }
