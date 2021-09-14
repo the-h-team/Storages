@@ -23,8 +23,6 @@ import com.github.sanctum.storages.exceptions.InventoryHolderException;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 /**
@@ -35,7 +33,6 @@ import java.util.function.Consumer;
  * @author ms5984
  */
 public class BlockManager extends InventoryManager<Container> {
-    private static final Map<BlockLocation, BlockManager> INSTANCES = new ConcurrentHashMap<>();
     private final BlockLocation blockLocation;
 
     /**
@@ -43,8 +40,10 @@ public class BlockManager extends InventoryManager<Container> {
      *
      * @param blockLocation a valid BlockLocation
      */
-    private BlockManager(BlockLocation blockLocation) {
+    public BlockManager(BlockLocation blockLocation) throws InventoryHolderException {
         this.blockLocation = blockLocation;
+        // force-validate block location before exiting constructor
+        getRawState();
     }
 
     @Override
@@ -65,12 +64,4 @@ public class BlockManager extends InventoryManager<Container> {
         return c;
     }
 
-    public static BlockManager ofBlock(Block block) throws InventoryHolderException {
-        final BlockLocation blockLocation = BlockLocation.of(block);
-        BlockManager blockManager = INSTANCES.get(blockLocation);
-        if (blockManager != null) return blockManager;
-        INSTANCES.put(blockLocation, (blockManager = new BlockManager(blockLocation)));
-        blockManager.getRawState(); // Validates container
-        return blockManager;
-    }
 }

@@ -32,8 +32,7 @@ import java.util.Optional;
  * @since 1.0.0
  * @author ms5984
  */
-public class BlockInventoryStorage extends InventoryDiscreteStorage {
-    private final BlockManager blockManager;
+public class BlockInventoryStorage extends InventoryDiscreteStorage<BlockManager> {
 
     /**
      * Create a BlockInventoryStorage with a BlockManager.
@@ -41,24 +40,23 @@ public class BlockInventoryStorage extends InventoryDiscreteStorage {
      * @param blockManager a BlockManager
      * @throws ProviderException if the provider encounters an error
      */
-    private BlockInventoryStorage(BlockManager blockManager) throws ProviderException {
+    public BlockInventoryStorage(BlockManager blockManager) throws ProviderException {
         super(blockManager);
-        this.blockManager = blockManager;
     }
 
     @Override
     public ItemStack[] getContents() throws InventoryHolderException {
-        return blockManager.query(c -> c.getInventory().getContents());
+        return manager.query(c -> c.getInventory().getContents());
     }
 
     @Override
     public void setContents(ItemStack[] items) throws InventoryHolderException, IllegalArgumentException {
-        blockManager.update(c -> c.getInventory().setContents(items));
+        manager.update(c -> c.getInventory().setContents(items));
     }
 
     @Override
     public @NotNull String getName() throws InventoryHolderException {
-        return blockManager.query(c -> Optional.ofNullable(c.getCustomName())
+        return manager.query(c -> Optional.ofNullable(c.getCustomName())
                 .orElse(c.getType().toString() + '[' + c.getLocation().toString() + ']')
         );
     }

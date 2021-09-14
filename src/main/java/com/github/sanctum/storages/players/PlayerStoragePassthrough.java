@@ -30,16 +30,14 @@ import org.jetbrains.annotations.NotNull;
  * @since 1.0.0
  * @author ms5984
  */
-public class PlayerStoragePassthrough extends InventoryDiscreteStorage {
-    private final PlayerManager playerManager;
+public class PlayerStoragePassthrough extends InventoryDiscreteStorage<PlayerManager> {
 
     public PlayerStoragePassthrough(@NotNull Player player) throws ProviderException {
-        super(PlayerManager.of(player));
-        this.playerManager = PlayerManager.of(player);
+        super(new PlayerManager(player));
     }
 
     @Override
     public @NotNull String getName() throws ProviderException {
-        return playerManager.query(Player::getName);
+        return manager.query(Player::getName);
     }
 }

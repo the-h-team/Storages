@@ -18,6 +18,7 @@
  */
 package com.github.sanctum.storages;
 
+import com.github.sanctum.storages.InventoryDiscreteStorage.InventoryManager;
 import com.github.sanctum.storages.blocks.BlockManager;
 import com.github.sanctum.storages.exceptions.InventoryHolderException;
 import com.github.sanctum.storages.exceptions.ItemException;
@@ -46,8 +47,8 @@ import java.util.function.Function;
  * @since 1.0.0
  * @author ms5984
  */
-public abstract class InventoryDiscreteStorage extends DiscreteStorage {
-    protected final InventoryManager<?> manager;
+public abstract class InventoryDiscreteStorage<T extends InventoryManager<?>> extends DiscreteStorage {
+    protected final T manager;
     protected final ImmutableList<StorageSlot> slotDAOs;
 
     /**
@@ -56,7 +57,7 @@ public abstract class InventoryDiscreteStorage extends DiscreteStorage {
      * @param provider an InventoryManager
      * @throws ProviderException if the provider encounters an error
      */
-    protected InventoryDiscreteStorage(InventoryManager<?> provider) throws ProviderException {
+    protected InventoryDiscreteStorage(T provider) throws ProviderException {
         this.manager = provider;
         final ImmutableList.Builder<StorageSlot> slots = new ImmutableList.Builder<>();
         final int size = getSize();

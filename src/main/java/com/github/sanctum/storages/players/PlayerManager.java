@@ -23,8 +23,6 @@ import com.github.sanctum.storages.exceptions.InventoryHolderException;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -34,7 +32,6 @@ import java.util.function.Consumer;
  * @author ms5984
  */
 public class PlayerManager extends InventoryManager<Player> {
-    private static final List<PlayerManager> INSTANCES = new LinkedList<>();
     private final Player player;
 
     /**
@@ -42,7 +39,7 @@ public class PlayerManager extends InventoryManager<Player> {
      *
      * @param player an online player
      */
-    private PlayerManager(Player player) {
+    public PlayerManager(Player player) {
         this.player = player;
     }
 
@@ -61,18 +58,5 @@ public class PlayerManager extends InventoryManager<Player> {
     @Override
     protected Player getRawState() {
         return player;
-    }
-
-    public static PlayerManager of(@NotNull Player player) {
-        PlayerManager playerManager = null;
-        for (PlayerManager pm : INSTANCES) {
-            if (pm.player == player) {
-                playerManager = pm;
-                break;
-            }
-        }
-        if (playerManager != null) return playerManager;
-        INSTANCES.add((playerManager = new PlayerManager(player)));
-        return playerManager;
     }
 }
