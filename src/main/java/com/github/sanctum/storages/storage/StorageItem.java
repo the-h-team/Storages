@@ -27,26 +27,72 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+/**
+ * Represents a mutable ItemStack during storage iteration.
+ * <p>
+ * <b>Acts as a data-access object; edits are delegated to the provider.</b>
+ *
+ * @since 1.0.0
+ * @author ms5984
+ */
 public abstract class StorageItem {
 
+    /**
+     * Get the storage item contents.
+     *
+     * @return an Optional describing the storage item contents
+     * @throws ProviderException if the provider encounters an error
+     */
     public abstract Optional<@NotNull ItemStack> getItem() throws ProviderException;
 
+    /**
+     * Set the storage item contents using an existing ItemStack.
+     *
+     * @param item the new contents
+     * @throws ProviderException if the provider encounters an error
+     */
     public abstract void setItem(@Nullable ItemStack item) throws ProviderException;
 
+    /**
+     * Set the storage item contents using the output of a Supplier.
+     *
+     * @param supplier an ItemStack-producing operation
+     * @throws ProviderException if the provider encounters an error
+     */
     public void set(Supplier<@Nullable ItemStack> supplier) throws ProviderException {
         setItem(supplier.get());
     }
 
+    /**
+     * Update the storage item contents by applying the provided operation.
+     *
+     * @param updateOperation update function to apply
+     * @throws ProviderException if the provider encounters an error
+     */
     public void update(UnaryOperator<@Nullable ItemStack> updateOperation) throws ProviderException {
         setItem(updateOperation.apply(getItem().orElse(null)));
     }
 
+    /**
+     * Get the original contents and subsequently update the storage item.
+     *
+     * @param updateOperation update function to apply
+     * @return an Optional describing the original storage item contents
+     * @throws ProviderException if the provider encounters an error
+     */
     public Optional<@NotNull ItemStack> getAndUpdate(UnaryOperator<@Nullable ItemStack> updateOperation) throws ProviderException {
         final Optional<@NotNull ItemStack> original = getItem();
         update(updateOperation);
         return original;
     }
 
+    /**
+     * Update the storage item and get the subsequent result.
+     *
+     * @param updateOperation update function to apply
+     * @return an Optional describing the new storage item contents
+     * @throws ProviderException if the provider encounters an error
+     */
     public Optional<@NotNull ItemStack> updateAndGet(UnaryOperator<@Nullable ItemStack> updateOperation) throws ProviderException {
         update(updateOperation);
         return getItem();

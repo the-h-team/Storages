@@ -26,9 +26,21 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
+/**
+ * A BlockManager-backed, InventoryHolder-based DiscreteStorage implementation.
+ *
+ * @since 1.0.0
+ * @author ms5984
+ */
 public class BlockInventoryStorage extends InventoryDiscreteStorage {
     private final BlockManager blockManager;
 
+    /**
+     * Create a BlockInventoryStorage with a BlockManager.
+     *
+     * @param blockManager a BlockManager
+     * @throws ProviderException if the provider encounters an error
+     */
     private BlockInventoryStorage(BlockManager blockManager) throws ProviderException {
         super(blockManager);
         this.blockManager = blockManager;

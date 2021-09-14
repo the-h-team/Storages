@@ -27,10 +27,21 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * An InventoryManager implementation for {@link Player}.
+ *
+ * @since 1.0.0
+ * @author ms5984
+ */
 public class PlayerManager extends InventoryManager<Player> {
     private static final List<PlayerManager> INSTANCES = new LinkedList<>();
     private final Player player;
 
+    /**
+     * Create a PlayerManager for the provided Player.
+     *
+     * @param player an online player
+     */
     private PlayerManager(Player player) {
         this.player = player;
     }

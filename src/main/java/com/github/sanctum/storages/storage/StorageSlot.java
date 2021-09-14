@@ -18,13 +18,33 @@
  */
 package com.github.sanctum.storages.storage;
 
+/**
+ * Represents a mutable, indexed ItemStack.
+ * <p>
+ * <b>Acts as a data-access object; edits are delegated to the provider.</b>
+ *
+ * @since 1.0.0
+ * @author ms5984
+ * @see StorageItem
+ */
 public abstract class StorageSlot extends StorageItem {
+    /** The slot index. */
     public final int index;
 
+    /**
+     * Create a StorageSlot DAO with the provided index information.
+     *
+     * @param index the index for the DAO
+     */
     protected StorageSlot(int index) {
         this.index = index;
     }
 
+    /**
+     * Get the index of this storage slot.
+     *
+     * @return the index of this storage slot.
+     */
     public final int getIndex() {
         return index;
     }

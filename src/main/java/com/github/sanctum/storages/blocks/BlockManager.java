@@ -27,10 +27,22 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
+/**
+ * An InventoryManager implementation for {@link Container} handling
+ * Container resolution from an original block location.
+ *
+ * @since 1.0.0
+ * @author ms5984
+ */
 public class BlockManager extends InventoryManager<Container> {
     private static final Map<BlockLocation, BlockManager> INSTANCES = new ConcurrentHashMap<>();
     private final BlockLocation blockLocation;
 
+    /**
+     * Create a BlockManager for the provided BlockLocation.
+     *
+     * @param blockLocation a valid BlockLocation
+     */
     private BlockManager(BlockLocation blockLocation) {
         this.blockLocation = blockLocation;
     }

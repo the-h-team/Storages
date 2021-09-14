@@ -31,14 +31,28 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Represents a block location in a particular world.
+ *
+ * @since 1.0.0
+ * @author ms5984
  */
 public final class BlockLocation {
+    /** The block X coordinate. */
     public final int x;
+    /** The block Y coordinate. */
     public final int y;
+    /** The block z coordinate. */
     public final int z;
+    /** The block world name. */
     public final String world;
     public final AtomicReference<World> resolvedWorld = new AtomicReference<>();
 
+    /**
+     * Create a BlockLocation from xyz-coordinates and a {@link World}.
+     * @param x the block's x coordinate
+     * @param y the block's y coordinate
+     * @param z the block's z coordinate
+     * @param world the block's World
+     */
     public BlockLocation(int x, int y, int z, World world) {
         this.x = x;
         this.y = y;

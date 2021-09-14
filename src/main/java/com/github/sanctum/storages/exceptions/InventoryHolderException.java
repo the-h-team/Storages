@@ -18,6 +18,19 @@
  */
 package com.github.sanctum.storages.exceptions;
 
+/**
+ * Thrown when an InventoryHolder-based provider encounters an error.
+ * <p>
+ * Things like...
+ * <ul>
+ *     <li>a player leaving</li>
+ *     <li>a chest being removed</li>
+ * </ul>
+ * ...all have a good chance to cause inevitably this exception to be thrown.
+ *
+ * @since 1.0.0
+ * @author ms5984
+ */
 public class InventoryHolderException extends ProviderException {
     private static final long serialVersionUID = 5007244222311834724L;
 

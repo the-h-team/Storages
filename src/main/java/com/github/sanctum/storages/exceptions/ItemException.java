@@ -23,6 +23,13 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
+/**
+ * Thrown if a storage provider is interrupted or otherwise
+ * unable to process an ItemStack-based operation.
+ *
+ * @since 1.0.0
+ * @author ms5984
+ */
 public class ItemException extends Exception {
     private static final long serialVersionUID = -4135278454111555764L;
     private final List<ItemStack> items;

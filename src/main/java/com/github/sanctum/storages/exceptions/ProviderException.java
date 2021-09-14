@@ -18,6 +18,12 @@
  */
 package com.github.sanctum.storages.exceptions;
 
+/**
+ * Thrown when a storage provider encounters a general error.
+ *
+ * @since 1.0.0
+ * @author ms5984
+ */
 public class ProviderException extends Exception {
     private static final long serialVersionUID = 8173642637636643999L;
 

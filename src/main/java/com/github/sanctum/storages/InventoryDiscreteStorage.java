@@ -50,6 +50,12 @@ public abstract class InventoryDiscreteStorage extends DiscreteStorage {
     protected final InventoryManager<?> manager;
     protected final ImmutableList<StorageSlot> slotDAOs;
 
+    /**
+     * Create a new InventoryDiscreteStorage backed by an InventoryManager.
+     *
+     * @param provider an InventoryManager
+     * @throws ProviderException if the provider encounters an error
+     */
     protected InventoryDiscreteStorage(InventoryManager<?> provider) throws ProviderException {
         this.manager = provider;
         final ImmutableList.Builder<StorageSlot> slots = new ImmutableList.Builder<>();
